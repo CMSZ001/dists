@@ -1,0 +1,51 @@
+name: Directory Listing
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 1. 创建一个空目录作为合并根
+      - name: Prepare merge dir
+        run: mkdir -p public
+
+      # 2. 把要跟踪的两个文件夹复制进来
+      - name: Copy tracked folders
+        run: |
+          cp -r dists public/dists
+          cp -r pool public/pool
+          # 如果两个目录里有同名文件/子目录，可自行改名或再加前缀
+
+      # 3. 生成索引（对合并后的 public 目录）
+      - name: Generate index
+        uses: jayanta525/github-pages-directory-listing@v4.0.0
+        with:
+          FOLDER: public     # 仅索引 public
+
+      # 4. 上传并部署
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
