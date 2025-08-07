@@ -30,7 +30,7 @@ jobs:
 
       # 3. 生成索引（对合并后的 public 目录）
       - name: Generate index
-        uses: CMSZ001/github-pages-directory-listing@main
+        uses: jayanta525/github-pages-directory-listing@v4.0.0
         with:
           FOLDER: public     # 仅索引 public
 
